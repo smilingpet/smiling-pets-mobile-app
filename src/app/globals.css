@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html,
+body {
+  height: 100%;
+}
+
+body {
+  @apply bg-surface-muted text-ink antialiased;
+  overscroll-behavior-y: none;
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Respect the device's safe areas (notches, home indicators) */
+.safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Hide scrollbars on horizontally-scrolling rails while staying scrollable */
+.scrollbar-none {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+/* Skeleton loading shimmer */
+.skeleton {
+  position: relative;
+  overflow: hidden;
+  background-color: theme("colors.surface.border");
+}
+.skeleton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  transform: translateX(-100%);
+  background-image: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0) 0,
+    rgba(255, 255, 255, 0.6) 20%,
+    rgba(255, 255, 255, 0.9) 60%,
+    rgba(255, 255, 255, 0)
+  );
+  animation: shimmer-sweep 1.6s infinite;
+}
+@keyframes shimmer-sweep {
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+/* Line clamp utilities (no plugin dependency) */
+.line-clamp-1 {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.line-clamp-3 {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Prose styling for Shopify-rendered HTML (descriptions, policies) */
+.prose-shopify {
+  @apply text-[15px] leading-relaxed text-ink/90;
+}
+.prose-shopify p {
+  @apply mb-3;
+}
+.prose-shopify ul {
+  @apply mb-3 list-disc pl-5;
+}
+.prose-shopify ol {
+  @apply mb-3 list-decimal pl-5;
+}
+.prose-shopify a {
+  @apply text-brand-600 underline underline-offset-2;
+}
+.prose-shopify img {
+  @apply my-3 rounded-xl;
+}
+.prose-shopify h2,
+.prose-shopify h3,
+.prose-shopify h4 {
+  @apply mb-2 mt-4 font-semibold text-ink;
+}
+
+/* Visible keyboard focus ring for accessibility */
+:focus-visible {
+  outline: 2px solid theme("colors.brand.500");
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
