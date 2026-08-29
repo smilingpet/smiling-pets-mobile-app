@@ -2,7 +2,7 @@
 // Bump CACHE_VERSION whenever you want to force clients to fetch fresh
 // assets. The app's UpdateNotification component listens for a new
 // service worker and prompts the user to refresh.
-const CACHE_VERSION = "smilingpets-v1";
+const CACHE_VERSION = "smilingpets-v2";
 const STATIC_CACHE = `${CACHE_VERSION}-static`;
 const OFFLINE_URL = "/offline";
 
@@ -86,25 +86,21 @@ self.addEventListener("fetch", (event) => {
   // Static assets (images, fonts, CSS/JS, Shopify CDN images): cache-first
   // with a background network update ("stale-while-revalidate").
   if (
-    request.destination === "image" ||
-    request.destination === "style" ||
-    request.destination === "script" ||
-    request.destination === "font" ||
-    url.hostname.includes("cdn.shopify.com")
-  ) {
-    event.respondWith(
-      caches.match(request).then((cached) => {
-        const network = fetch(request)
-          .then((response) => {
-            if (response && response.status === 200) {
-              const copy = response.clone();
-              caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy));
-            }
-            return response;
-          })
-          .catch(() => cached);
-        return cached || network;
+  request.destination === "image" ||
+  request.destination === "style" ||
+  request.destination === "script" ||
+  request.destination === "font" ||
+  url.hostname.includes("cdn.shopify.com")
+) {
+  event.respondWith(
+    fetch(request)
+      .then((response) => {
+        if (response && response.status === 200) {
+          const copy = response.clone();
+          caches.open(STATIC_CACHE).then((cache) => cache.put(request, copy));
+        }
+        return response;
       })
-    );
-  }
-});
+      .catch(() => caches.match(request))
+  );
+}
