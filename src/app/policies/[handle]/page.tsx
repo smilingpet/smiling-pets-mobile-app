@@ -18,8 +18,8 @@ async function loadPolicy(handle: string): Promise<ShopPolicy | null> {
   const key = POLICY_MAP[handle];
   if (!key) return null;
   const policies = await getShopPolicies();
-  const policy = policies[key];
-  return policy ?? null;
+const policy = policies[key] as ShopPolicy | null;
+return policy;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
