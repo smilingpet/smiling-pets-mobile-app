@@ -41,7 +41,7 @@ export default async function ShopPage({ params }: Props) {
         <div className="flex justify-center gap-3">
           <Link
             href="/"
-            className="rounded-full bg-brand-500 px-5 py-2.5 text-xs font-semibold text-white"
+            className="rounded-full bg-accent-500 px-5 py-2.5 text-xs font-semibold text-white"
           >
             Go Home
           </Link>

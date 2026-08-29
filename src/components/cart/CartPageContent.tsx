@@ -78,7 +78,7 @@ export function CartPageContent() {
       <div className="mt-5 space-y-2.5">
         <a
           href={cart.checkoutUrl}
-          className="block rounded-full bg-brand-500 py-3.5 text-center text-sm font-bold text-white shadow-card active:scale-95"
+          className="block rounded-full bg-accent-500 py-3.5 text-center text-sm font-bold text-white shadow-card active:scale-95"
           aria-disabled={isMutating}
         >
           Secure Checkout

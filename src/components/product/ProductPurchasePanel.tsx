@@ -142,7 +142,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           type="button"
           disabled={!available || isMutating}
           onClick={() => selectedVariant?.id && addItem(selectedVariant.id, quantity, product.title)}
-          className="flex-1 rounded-full border-2 border-brand-500 py-3 text-sm font-bold text-brand-600 active:scale-95 disabled:opacity-40"
+          className="flex-1 rounded-full border-2 border-accent-500 py-3 text-sm font-bold text-accent-600 active:scale-95 disabled:opacity-40"
         >
           {isMutating && !isBuyingNow ? "Adding…" : "Add to Cart"}
         </button>
@@ -150,7 +150,7 @@ export function ProductPurchasePanel({ product }: { product: Product }) {
           type="button"
           disabled={!available || isMutating}
           onClick={handleBuyNow}
-          className="flex-1 rounded-full bg-brand-500 py-3 text-sm font-bold text-white shadow-card active:scale-95 disabled:opacity-40"
+          className="flex-1 rounded-full bg-accent-500 py-3 text-sm font-bold text-white shadow-card active:scale-95 disabled:opacity-40"
         >
           {isBuyingNow ? "Please wait…" : "Buy Now"}
         </button>

@@ -8,8 +8,8 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-surface-border bg-white/95 backdrop-blur safe-top">
       <div className="mx-auto flex max-w-lg items-center justify-between gap-3 px-4 pt-3">
-        <Link href="/" aria-label="Smiling Pets home">
-          <Logo markClassName="h-9 w-9" wordmarkClassName="text-lg" />
+        <Link href="/" aria-label="Smiling Pets home" className="shrink-0">
+          <Logo height={38} priority />
         </Link>
         <a
           href={`tel:${SUPPORT_PHONE.replace(/\s+/g, "")}`}

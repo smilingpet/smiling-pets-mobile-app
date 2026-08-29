@@ -7,7 +7,13 @@ export const revalidate = 3600;
 
 type Props = { params: { handle: string } };
 
-const POLICY_MAP: Record<string, keyof Awaited<ReturnType<typeof getShopPolicies>>> = {
+type PolicyKey =
+  | "termsOfService"
+  | "refundPolicy"
+  | "privacyPolicy"
+  | "shippingPolicy";
+
+const POLICY_MAP: Record<string, PolicyKey> = {
   "terms-of-service": "termsOfService",
   "refund-policy": "refundPolicy",
   "privacy-policy": "privacyPolicy",
@@ -18,8 +24,8 @@ async function loadPolicy(handle: string): Promise<ShopPolicy | null> {
   const key = POLICY_MAP[handle];
   if (!key) return null;
   const policies = await getShopPolicies();
-const policy = policies[key] as ShopPolicy | null;
-return policy;
+  const policy = policies[key] as ShopPolicy | null;
+  return policy;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {

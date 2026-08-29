@@ -33,6 +33,18 @@ function endpoint(): string {
     );
   }
   const cleanDomain = domain.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  if (!cleanDomain.endsWith(".myshopify.com")) {
+    // Not a hard error — some setups may legitimately differ — but this is
+    // by far the most common misconfiguration: pasting the storefront's
+    // custom domain (e.g. www.smilingpets.in) instead of the required
+    // *.myshopify.com domain, which causes every request to fail or return
+    // HTML instead of JSON. Logged once per cold start to aid debugging
+    // without needing to inspect env vars directly.
+    console.warn(
+      `[shopify] NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN ("${cleanDomain}") doesn't end in ".myshopify.com". ` +
+        "Use your store's *.myshopify.com domain (Shopify Admin URL bar), not a custom domain."
+    );
+  }
   return `https://${cleanDomain}/api/${API_VERSION}/graphql.json`;
 }
 
@@ -122,32 +134,60 @@ export async function shopifyFetch<T, TVariables = Record<string, unknown>>({
     fetchOptions.next = { revalidate, tags };
   }
 
+  // Logs to the server console (visible in Vercel's Function/Runtime logs)
+  // — never includes the token, only the request shape and failure
+  // details, so it's always safe to leave this in production.
+  function logAndThrow(message: string, opts?: { errors?: Array<{ message: string }>; status?: number }): never {
+    console.error("[shopify]", {
+      message,
+      status: opts?.status,
+      graphqlErrors: opts?.errors,
+      domainConfigured: Boolean(domain),
+      // Never logged: the token value itself.
+    });
+    throw new ShopifyApiError(message, opts);
+  }
+
   let response: Response;
   try {
     response = await fetch(endpoint(), fetchOptions);
   } catch (err) {
-    throw new ShopifyApiError(
-      `Could not reach Shopify. Check NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN. (${(err as Error).message})`
+    logAndThrow(
+      `Could not reach Shopify. Check NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN is your *.myshopify.com domain. (${(err as Error).message})`
     );
   }
 
   if (!response.ok) {
     const text = await response.text().catch(() => "");
-    throw new ShopifyApiError(`Shopify API responded with status ${response.status}: ${text}`, {
+    const truncated = text.length > 300 ? `${text.slice(0, 300)}…` : text;
+    let hint = "";
+    if (response.status === 401 || response.status === 403) {
+      hint =
+        " This usually means SHOPIFY_STOREFRONT_PRIVATE_TOKEN is missing, wrong, or lacks the required Storefront API scopes — check Shopify Admin → your Headless app → API credentials.";
+    } else if (response.status === 404) {
+      hint =
+        " This usually means NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN is wrong — it must be your *.myshopify.com domain, not a custom domain like smilingpets.in.";
+    }
+    logAndThrow(`Shopify API responded with status ${response.status}.${hint} Response: ${truncated}`, {
       status: response.status,
     });
   }
 
-  const json = (await response.json()) as ShopifyGraphQLResponse<T>;
+  let json: ShopifyGraphQLResponse<T>;
+  try {
+    json = (await response.json()) as ShopifyGraphQLResponse<T>;
+  } catch {
+    logAndThrow(
+      "Shopify returned a response that wasn't valid JSON. This almost always means NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN is pointing at the wrong place — double-check it's your *.myshopify.com domain (Shopify Admin URL bar), not smilingpets.in or another custom domain."
+    );
+  }
 
   if (json.errors && json.errors.length > 0) {
-    throw new ShopifyApiError(json.errors.map((e) => e.message).join("; "), {
-      errors: json.errors,
-    });
+    logAndThrow(json.errors.map((e) => e.message).join("; "), { errors: json.errors });
   }
 
   if (!json.data) {
-    throw new ShopifyApiError("Shopify API returned an empty response.");
+    logAndThrow("Shopify API returned an empty response.");
   }
 
   return json.data;

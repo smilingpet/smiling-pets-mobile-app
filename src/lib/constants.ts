@@ -56,6 +56,7 @@ export const HERO_BANNERS = [
   {
     id: "banner-all",
     image: "/banners/banner-1.svg",
+    theme: "coral" as const,
     headline: "Everything Your Pet Needs",
     subheading: "Premium food, treats & essentials — delivered fast",
     ctaLabel: "Shop All Products",
@@ -64,6 +65,7 @@ export const HERO_BANNERS = [
   {
     id: "banner-offers",
     image: "/banners/banner-2.svg",
+    theme: "green" as const,
     headline: "Great Deals, Happy Tails",
     subheading: "Save more on Royal Canin, Pedigree, Whiskas & more",
     ctaLabel: "View Offers",
@@ -72,6 +74,7 @@ export const HERO_BANNERS = [
   {
     id: "banner-mixmatch",
     image: "/banners/banner-3.svg",
+    theme: "coral" as const,
     headline: "Mix & Match Favourites",
     subheading: "Build your pet's own custom flavour box",
     ctaLabel: "Explore Mix & Match",

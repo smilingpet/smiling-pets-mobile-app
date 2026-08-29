@@ -23,7 +23,7 @@ export default function AccountPage() {
       <div className="space-y-3">
         <a
           href={storeAccountUrl("/account/login")}
-          className="block rounded-2xl bg-brand-500 py-3.5 text-center text-sm font-bold text-white shadow-card active:scale-95"
+          className="block rounded-2xl bg-accent-500 py-3.5 text-center text-sm font-bold text-white shadow-card active:scale-95"
         >
           Log In
         </a>

@@ -13,7 +13,7 @@ import {
 export function Footer() {
   return (
     <footer className="mt-10 border-t border-surface-border bg-white px-4 pb-8 pt-7">
-      <Logo markClassName="h-8 w-8" wordmarkClassName="text-base" />
+      <Logo height={44} />
 
       <div className="mt-4 space-y-1.5">
         <p className="flex items-start gap-2 text-xs leading-relaxed text-ink-light">

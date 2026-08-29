@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { LogoMark } from "@/components/brand/Logo";
+import { LogoBadge } from "@/components/brand/Logo";
 
 const MIN_VISIBLE_MS = 550;
 const SESSION_KEY = "smilingpets:splashShown";
@@ -76,15 +76,13 @@ export function SplashScreen() {
   return (
     <div
       aria-hidden={!visible}
-      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-brand-500 transition-opacity duration-300 ${
+      className={`fixed inset-0 z-[100] flex flex-col items-center justify-center bg-accent-500 transition-opacity duration-300 ${
         fading ? "pointer-events-none opacity-0" : "opacity-100"
       }`}
     >
-      <div className="flex flex-col items-center gap-4">
-        <span className="flex h-20 w-20 items-center justify-center rounded-[26%] bg-white/15 p-3 animate-fade-in">
-          <LogoMark tone="white" className="h-full w-full" />
-        </span>
-        <span className="text-xl font-extrabold tracking-tight text-white">Smiling Pets</span>
+      <div className="flex flex-col items-center gap-5 animate-fade-in">
+        <LogoBadge size={104} className="shadow-2xl" />
+        <span className="text-sm font-medium tracking-wide text-white/90">My Pet. My World.</span>
       </div>
       <div className="absolute bottom-10 flex items-center gap-1.5" aria-hidden="true">
         <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-white/60 [animation-delay:-0.3s]" />

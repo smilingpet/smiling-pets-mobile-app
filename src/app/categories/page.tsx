@@ -14,7 +14,7 @@ export const metadata: Metadata = {
 export const revalidate = 300;
 
 export default async function CategoriesPage() {
-  const collections = await getCollections(50).catch(() => []);
+  const collections = await getCollections(100).catch(() => []);
   const byHandle = new Map(collections.map((c) => [c.handle, c]));
 
   return (

@@ -1,59 +1,59 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils/format";
 
 /**
- * The Smiling Pets brand mark, inlined as SVG (crisp at any size, zero
- * extra network request, themeable). Paired with the wordmark rendered as
- * real HTML text in the app's own Poppins font — sharper and more
- * accessible than baking text into a raster/vector image.
+ * The official Smiling Pets logo, saved locally at
+ * public/brand/smiling-pets-logo.png so the app never depends on the
+ * external smilingpets.in site to load its own branding. Used at its
+ * native aspect ratio (240x225, ~1.07:1) everywhere — never stretched,
+ * cropped, or redrawn.
  */
-export function LogoMark({ className, tone = "green" }: { className?: string; tone?: "green" | "white" }) {
-  if (tone === "white") {
-    return (
-      <svg viewBox="0 0 64 64" fill="none" className={className} role="img" aria-label="Smiling Pets">
-        <ellipse cx="32" cy="36.5" rx="15.5" ry="12.6" fill="currentColor" />
-        <circle cx="10.4" cy="18.4" r="4.2" fill="currentColor" />
-        <circle cx="24.2" cy="12.3" r="4.2" fill="currentColor" />
-        <circle cx="39.8" cy="12.3" r="4.2" fill="currentColor" />
-        <circle cx="53.6" cy="18.4" r="4.2" fill="currentColor" />
-      </svg>
-    );
-  }
-  return (
-    <svg viewBox="0 0 64 64" fill="none" className={className} role="img" aria-label="Smiling Pets">
-      <rect x="0" y="0" width="64" height="64" rx="14" fill="#3fa24f" />
-      <ellipse cx="32" cy="36.5" rx="14.1" ry="11.5" fill="#ffffff" />
-      <circle cx="12.2" cy="19.6" r="3.8" fill="#ffffff" />
-      <circle cx="24.6" cy="14.1" r="3.8" fill="#ffffff" />
-      <circle cx="39.4" cy="14.1" r="3.8" fill="#ffffff" />
-      <circle cx="51.8" cy="19.6" r="3.8" fill="#ffffff" />
-    </svg>
-  );
-}
+const LOGO_SRC = "/brand/smiling-pets-logo.png";
+const LOGO_ASPECT = 240 / 225;
 
 export function Logo({
   className,
-  markClassName = "h-9 w-9",
-  wordmarkClassName = "text-lg",
-  tone = "default",
+  height = 40,
+  priority = false,
 }: {
   className?: string;
-  markClassName?: string;
-  wordmarkClassName?: string;
-  /** "default": dark ink wordmark for light backgrounds. "white": full white lockup for the brand-green/dark backgrounds (splash, footer banners, etc). */
-  tone?: "default" | "white";
+  /** Rendered height in px; width is derived from the logo's real aspect ratio. */
+  height?: number;
+  priority?: boolean;
+}) {
+  const width = Math.round(height * LOGO_ASPECT);
+  return (
+    <Image
+      src={LOGO_SRC}
+      alt="Smiling Pets — My Pet. My World."
+      width={width}
+      height={height}
+      priority={priority}
+      className={cn("h-auto object-contain", className)}
+      style={{ height, width: "auto" }}
+    />
+  );
+}
+
+/**
+ * A round white "badge" wrapper for placing the logo on a solid brand-green
+ * background (splash screen, install prompt) where the logo — which has
+ * its own multi-colour palette designed for a white background — needs a
+ * white backdrop to stay true to the brand and remain clearly legible.
+ */
+export function LogoBadge({
+  size = 72,
+  className,
+}: {
+  size?: number;
+  className?: string;
 }) {
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
-      <LogoMark className={cn("shrink-0 rounded-[22%]", markClassName)} tone={tone === "white" ? "white" : "green"} />
-      <span
-        className={cn(
-          "font-sans font-extrabold tracking-tight",
-          tone === "white" ? "text-white" : "text-ink",
-          wordmarkClassName
-        )}
-      >
-        Smiling <span className={tone === "white" ? "text-white/90" : "text-brand-600"}>Pets</span>
-      </span>
+    <span
+      className={cn("flex items-center justify-center rounded-full bg-white shadow-lg", className)}
+      style={{ width: size, height: size, padding: size * 0.16 }}
+    >
+      <Logo height={size * 0.68} />
     </span>
   );
 }

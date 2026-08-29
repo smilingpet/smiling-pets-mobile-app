@@ -65,7 +65,7 @@ export function HeroSlider() {
   return (
     <div className="relative mx-4 mt-3">
       <div
-        className="relative aspect-[4/3] w-full touch-pan-y select-none overflow-hidden rounded-3xl bg-brand-600 shadow-card sm:aspect-[16/9]"
+        className="relative aspect-[4/3] w-full touch-pan-y select-none overflow-hidden rounded-3xl shadow-card sm:aspect-[16/9]"
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
@@ -74,36 +74,49 @@ export function HeroSlider() {
           className="flex h-full transition-transform duration-400 ease-out"
           style={{ transform: `translateX(-${active * 100}%)` }}
         >
-          {slides.map((slide, index) => (
-            <div key={slide.id} className="relative h-full w-full shrink-0 bg-brand-600">
-              {/* Guaranteed-visible fallback panel, always present underneath the artwork */}
-              <div className="absolute inset-0 bg-gradient-to-br from-brand-500 via-brand-600 to-brand-800" />
-              <Image
-                src={slide.image}
-                alt=""
-                fill
-                sizes="(max-width: 640px) 92vw, 480px"
-                className="object-cover"
-                priority={index === 0}
-              />
-              {/* Readability scrim: text always sits on a darkened zone, never raw artwork */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
-              <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
-                <p className="text-xs font-semibold uppercase tracking-wide text-white/85">
-                  {slide.subheading}
-                </p>
-                <h2 className="mt-1 max-w-[80%] text-xl font-extrabold leading-tight text-white sm:text-2xl">
-                  {slide.headline}
-                </h2>
-                <Link
-                  href={slide.href}
-                  className="mt-3 inline-flex items-center rounded-full bg-white px-5 py-2.5 text-xs font-bold text-brand-700 shadow-sm active:scale-95"
-                >
-                  {slide.ctaLabel}
-                </Link>
+          {slides.map((slide, index) => {
+            const isCoral = slide.theme === "coral";
+            return (
+              <div key={slide.id} className="relative h-full w-full shrink-0">
+                {/* Guaranteed-visible fallback panel, always present underneath the artwork */}
+                <div
+                  className={cn(
+                    "absolute inset-0 bg-gradient-to-br",
+                    isCoral
+                      ? "from-accent-400 via-accent-500 to-accent-700"
+                      : "from-brand-500 via-brand-600 to-brand-800"
+                  )}
+                />
+                <Image
+                  src={slide.image}
+                  alt=""
+                  fill
+                  sizes="(max-width: 640px) 92vw, 480px"
+                  className="object-cover"
+                  priority={index === 0}
+                />
+                {/* Readability scrim: text always sits on a darkened zone, never raw artwork */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+                <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+                  <p className="text-xs font-semibold uppercase tracking-wide text-white/85">
+                    {slide.subheading}
+                  </p>
+                  <h2 className="mt-1 max-w-[80%] text-xl font-extrabold leading-tight text-white sm:text-2xl">
+                    {slide.headline}
+                  </h2>
+                  <Link
+                    href={slide.href}
+                    className={cn(
+                      "mt-3 inline-flex items-center rounded-full bg-white px-5 py-2.5 text-xs font-bold shadow-sm active:scale-95",
+                      isCoral ? "text-accent-600" : "text-brand-700"
+                    )}
+                  >
+                    {slide.ctaLabel}
+                  </Link>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
 
@@ -119,7 +132,7 @@ export function HeroSlider() {
               onClick={() => goTo(index)}
               className={cn(
                 "h-1.5 rounded-full transition-all",
-                index === active ? "w-6 bg-brand-500" : "w-1.5 bg-surface-border"
+                index === active ? "w-6 bg-accent-500" : "w-1.5 bg-surface-border"
               )}
             />
           ))}

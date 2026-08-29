@@ -50,7 +50,7 @@ export function AddToCartButton({
       }}
       aria-label={`Add ${title} to cart`}
       className={cn(
-        "rounded-full bg-brand-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition active:scale-95 disabled:opacity-60",
+        "rounded-full bg-accent-500 px-4 py-2 text-xs font-semibold text-white shadow-sm transition active:scale-95 disabled:opacity-60",
         fullWidth && "w-full",
         size === "lg" && "py-3 text-sm",
         className

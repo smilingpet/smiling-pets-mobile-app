@@ -27,7 +27,7 @@ export function EmptyState({
       {actionLabel && actionHref && (
         <Link
           href={actionHref}
-          className="rounded-full bg-brand-500 px-6 py-2.5 text-sm font-semibold text-white shadow-card active:scale-95"
+          className="rounded-full bg-accent-500 px-6 py-2.5 text-sm font-semibold text-white shadow-card active:scale-95"
         >
           {actionLabel}
         </Link>
