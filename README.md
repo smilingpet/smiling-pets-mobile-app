@@ -43,6 +43,43 @@ smiling-pets-pwa/
 
 ---
 
+## What changed in this update — files to replace on GitHub
+
+If you already pushed an earlier version of this project, the cleanest way to apply this update is to **replace these files/folders wholesale** in your GitHub repo with the versions in this ZIP (delete the old ones first if GitHub doesn't overwrite cleanly), then let Vercel redeploy:
+
+**Shopify connection & data (the products-not-loading fix)**
+- `src/lib/shopify/client.ts` — now includes domain-format validation, specific error messages per failure type (bad token vs bad domain vs non-JSON response), and safe server-side error logging
+- `src/app/page.tsx` — no longer silently shows an empty homepage on a Shopify failure; now shows a specific, actionable error screen with a Retry button
+- `src/components/ui/ShopifyTroubleshoot.tsx` — new file, the diagnostic error/retry screen
+- `src/components/home/BrandsRow.tsx` — now uses real Shopify collection images instead of text-only cards
+- `src/app/categories/page.tsx` — collection fetch limit increased so brand/category collections are never silently truncated
+
+**Real logo + brand colours**
+- `public/brand/smiling-pets-logo.png`, `public/brand/smiling-pets-mark.png` — your real logo, new files
+- `public/icons/*`, `public/apple-touch-icon.png`, `public/favicon.ico`, `public/og-image.png` — regenerated from your real logo
+- `src/components/brand/Logo.tsx` — rewritten to render the real logo image
+- `tailwind.config.ts` — coral (`#ff6665`) is now the `accent` colour
+- `src/components/layout/Header.tsx`, `Footer.tsx`, `src/components/pwa/InstallPrompt.tsx`, `src/components/splash/SplashScreen.tsx`, `src/app/offline/page.tsx` — updated to the real logo and rebalanced colours
+- `src/components/home/HeroSlider.tsx`, `src/components/home/ShopByPet.tsx`, `src/components/home/WhyChooseUs.tsx`, `src/components/home/MixMatchRow.tsx`, `public/banners/*.svg` — recoloured for coral/green balance
+- `src/components/product/AddToCartButton.tsx`, `src/components/product/ProductPurchasePanel.tsx`, `src/components/cart/CartPageContent.tsx` — primary CTAs (Add to Cart, Buy Now, Checkout, Install) switched from green to coral
+
+**PWA cache**
+- `public/sw.js` — rewritten: HTML/CSS/JS are now network-first (was cache-first for CSS/JS, which is the most likely cause of the duplicated/stale-looking page you saw), only images/fonts/Shopify CDN/Next's hashed build assets stay cache-first, and the cache version was bumped so every installed client purges its old cache automatically on next launch
+
+Everything else is unchanged from the previous delivery. Simplest overall approach: just replace the entire repo contents with this ZIP's contents and redeploy — nothing in here depends on you cherry-picking individual files.
+
+### About the duplicated header/search bar you saw
+
+I audited the entire codebase specifically for this and can confirm structurally: `<Header />` and the bottom navigation are each rendered exactly once, in `src/app/layout.tsx` only — there's no second layout file, no template file, and no homepage section (Mix & Match, Top Brands, Why Choose Us, Reviews, Footer) renders a header or search bar of its own. I don't have a copy of the screenshot you referenced (only your logo image came through as an attachment), so I can't visually match what you saw — but the most likely explanation, given you mentioned disabling the service worker mid-troubleshooting, is a **stale cached page** (an old HTML shell paired with a newer/older JS bundle from a previous deploy). The service worker rewrite above (network-first HTML/JS/CSS + a new cache version) is specifically designed to eliminate that. After redeploying this version:
+
+1. On your phone/browser, fully close the app/tab.
+2. If you'd installed the PWA before, uninstall it and reinstall after the new deploy is live (this guarantees a clean service worker).
+3. In a regular browser tab, hard-refresh (or open in a private/incognito window) to bypass any cached copy and confirm the live page looks correct before reinstalling.
+
+If it still happens after that, it's a genuine bug I haven't found — reply with a screenshot and I'll fix it directly rather than guess.
+
+---
+
 ## 2. How Shopify is connected (read this first)
 
 This app uses the **Shopify Storefront GraphQL API** (version **2026-07**) exclusively — the same API official Shopify headless storefronts use. It talks to Shopify in two ways:
@@ -148,37 +185,25 @@ Any time you want to change something, edit the files on GitHub (or push new com
 
 ---
 
-## 5. Replace these before you launch
+## 5. Your official logo — now integrated
 
-This app ships with a **professionally designed placeholder brand mark** — a custom vector paw-in-badge icon in your brand green (`#3fa24f`), used consistently everywhere instead of an emoji or generic template icon. It is **not the real Smiling Pets logo file**: I'm not able to download binary image files from the live smilingpets.in site in this build environment (only text/HTML content is reachable), so I designed a clean, on-brand mark from scratch rather than leaving a generic placeholder. It will look and work correctly today; swap in your real logo whenever you're ready using the exact steps below — nothing about the design needs to change structurally.
+Your real Smiling Pets logo is now used throughout the app (it wasn't in the first draft — this version was corrected after you sent it over):
 
-### Files to replace
+- **`public/brand/smiling-pets-logo.png`** — the full logo, exactly as you provided it (untouched aspect ratio, transparent background). Used in the **Header**, **Footer**, and the **offline page**, always via `src/components/brand/Logo.tsx`'s `<Logo />` component, rendered at its real proportions — never stretched or cropped.
+- **`public/brand/smiling-pets-mark.png`** — a tighter crop of just the dog + wordmark (no tagline/pet-icon row), used only for the **splash screen** and **install prompt**, where it sits on a white circular badge (`<LogoBadge />`) so it stays legible at a small size against the coral splash background. Small app-icon-style uses genuinely need a simplified mark — showing the full detailed lockup with fine-print tagline at 40–70px would be illegible — so this crop exists specifically for that, not as a redesign of your logo.
+- **`public/icons/*.png`, `public/apple-touch-icon.png`, `public/favicon.ico`, `public/og-image.png`** — regenerated from your real logo (white background, per your brand spec) so the browser tab icon, home-screen icon, and social share preview all match.
 
-| File | Size | Used for |
-|---|---|---|
-| `public/brand/logo-mark.svg` | vector | The in-app header/footer/splash logo mark (green badge version) |
-| `public/brand/logo-mark-white.svg` | vector | White version used on the brand-green splash screen background |
-| `public/icons/icon-192x192.png` | 192×192 | PWA install icon |
-| `public/icons/icon-512x512.png` | 512×512 | PWA install icon |
-| `public/icons/icon-maskable-192x192.png` | 192×192 | Android maskable icon — keep your logo within the center ~80% "safe zone"; Android crops this to a circle/rounded-square |
-| `public/icons/icon-maskable-512x512.png` | 512×512 | Same safe-zone rule as above |
-| `public/apple-touch-icon.png` | 180×180, no transparency | iOS home screen icon |
-| `public/favicon.ico` | multi-size | Browser tab icon |
-| `public/og-image.png` | 1200×630 | Shown when the site is shared on social media/WhatsApp |
+**One honest caveat:** your source file is 240×225px. That's fine for the header/footer/splash at the sizes they're shown, but a 512×512 app icon upscaled from a 240px source will look slightly softer than one built from vector art or a larger source photo. If you have a higher-resolution version of your logo (or the original vector/AI file), replacing `public/brand/smiling-pets-logo.png` and re-running the icon generation will sharpen the large icon sizes — everything else about how it's used stays the same.
 
-### How to update the in-app logo
+### If you ever want to update the logo again
 
-The header, footer, install prompt, and splash screen all render the mark through one shared component: `src/components/brand/Logo.tsx` (`<Logo />` and `<LogoMark />`). It currently inlines the same vector paw mark as SVG markup directly in that file (for crisp, dependency-free rendering) rather than loading `public/brand/logo-mark.svg` as an image. To swap in your real logo:
-
-1. Export your real logo as SVG (ideal) or a high-resolution transparent PNG.
-2. Replace the inline `<svg>...</svg>` markup inside `LogoMark` in `src/components/brand/Logo.tsx` with your artwork (or swap it for an `<Image src="/brand/logo-mark.svg" .../>` pointing at a real file you've placed in `public/brand/`).
-3. Regenerate the PWA icons/OG image (step below) from the same artwork so every surface — browser tab, home screen icon, social share preview — matches.
-
-You can generate the whole icon/OG set from a single source image using a free tool like [realfavicongenerator.net](https://realfavicongenerator.net) or [maskable.app](https://maskable.app/editor) (for the two maskable variants). Keep the exact filenames from the table above so no code changes are needed elsewhere — just upload the replacements to the same paths in GitHub and Vercel will redeploy automatically.
+Replace `public/brand/smiling-pets-logo.png` (and optionally `public/brand/smiling-pets-mark.png` with a matching crop) with your new file at the same path, then regenerate the derived icon set using a free tool like [realfavicongenerator.net](https://realfavicongenerator.net) to produce `icon-192x192.png`, `icon-512x512.png`, `icon-maskable-*.png`, `apple-touch-icon.png`, and `favicon.ico` from the same source, and drop them in at the same filenames under `public/icons/`. No component code needs to change either way.
 
 **A note on the "Customer Reviews" section:** Shopify's Storefront API has no built-in product-review object, so the three testimonials on the home page are paraphrased from the real testimonials published on smilingpets.in (not invented) rather than pulled live. When you're ready, swap `CUSTOMER_REVIEWS` in `src/lib/constants.ts` for a live feed from whatever reviews app you use (Judge.me, Loox, Yotpo, etc.) — everything else on the site (every product, price, image, and collection) is already 100% live from Shopify with no placeholders.
 
-**A note on the hero banners:** the three home-screen hero banners (`public/banners/banner-1.svg`, `banner-2.svg`, `banner-3.svg`) are custom vector graphics in your brand palette, deliberately used *instead of* live Shopify collection images so the hero section can never render blank (a missing/unset collection image would otherwise leave an empty slide). Headline, subheading, and CTA copy for each banner live in `HERO_BANNERS` in `src/lib/constants.ts` — edit the text or swap in your own artwork there any time; no other code needs to change.
+**A note on the hero banners:** the three home-screen hero banners (`public/banners/banner-1.svg`, `banner-2.svg`, `banner-3.svg`) are custom vector graphics in your coral/green brand palette, deliberately used *instead of* live Shopify collection images so the hero section can never render blank (a missing/unset collection image would otherwise leave an empty slide). Headline, subheading, and CTA copy for each banner live in `HERO_BANNERS` in `src/lib/constants.ts` — edit the text or swap in your own artwork there any time; no other code needs to change.
+
+**A note on "Top Brands":** each brand card now shows the real image set on that brand's Shopify collection (Shopify Admin → Collections → e.g. "Royal Canin" → Image), fetched live — not a fabricated logo. If a brand collection doesn't have an image set yet, that one card falls back to a plain colour-coded monogram until you add one; it's never invented.
 
 ---
 

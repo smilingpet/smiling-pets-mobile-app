@@ -24,14 +24,17 @@ const config: Config = {
           950: "#0d2712",
         },
         accent: {
-          DEFAULT: "#ff9a3c", // warm friendly accent for sale badges / CTAs
-          50: "#fff4e9",
-          100: "#ffe3c7",
-          200: "#ffc78a",
-          300: "#ffab4d",
-          400: "#ff9a3c",
-          500: "#f57c1f",
-          600: "#d9640f",
+          DEFAULT: "#ff6665", // official Smiling Pets coral — primary CTA / promotional colour
+          50: "#fff1f0",
+          100: "#ffdedd",
+          200: "#ffc2c0",
+          300: "#ff9d9b",
+          400: "#ff8180",
+          500: "#ff6665",
+          600: "#f04544",
+          700: "#cc3130",
+          800: "#a82928",
+          900: "#8a2726",
         },
         ink: {
           DEFAULT: "#1c2b20",
@@ -39,8 +42,12 @@ const config: Config = {
         },
         surface: {
           DEFAULT: "#ffffff",
-          muted: "#f6faf6",
-          border: "#e5ede6",
+          muted: "#f8f8f7",
+          border: "#ececea",
+        },
+        tint: {
+          coral: "#fff2f2",
+          green: "#eefbf1",
         },
       },
       fontFamily: {
