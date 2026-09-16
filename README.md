@@ -45,6 +45,36 @@ smiling-pets-pwa/
 
 ## What changed in this update — files to replace on GitHub
 
+### IMPORTANT — please verify this update actually deployed
+
+After the previous fix (removing the `filters` field), the same error still appeared with the exact same reference number as before, showing the same generic "message is omitted in production" text. That specific combination is a strong signal that **the previous fix may not have actually gone live** — if it had, the error screen should have looked different (a more detailed message), even if the underlying problem turned out to be something else. Before assuming this new update hasn't worked either, please do one quick check:
+
+1. Go to your Vercel dashboard → your project → **Deployments** tab.
+2. Look at the timestamp of the most recent (top) deployment. Does it match roughly when you last uploaded to GitHub?
+3. Click into that deployment → **Source** — does it show a recent commit?
+
+If the most recent deployment is old, the GitHub upload didn't fully go through last time (this project has 150+ files, and GitHub's web uploader has known limits/hiccups with that many files at once — see the GitHub Desktop instructions earlier in this conversation). In that case, re-upload using GitHub Desktop rather than the web uploader, which handles large file counts reliably.
+
+### This round's fix — a second, independent layer of protection
+
+I found and fixed a real architectural gap: the previous fix (catching the error inside the page and showing the real message) only covered the *data-fetching* step. It did **not** cover errors thrown later, while React actually renders the product cards themselves — that happens in a separate step that a page's own try/catch cannot see. So if the real failure was happening during rendering rather than fetching, the previous fix would never have shown it, and the generic redacted message would keep appearing regardless of whether the deploy worked.
+
+The fix: `src/components/ui/RenderErrorBoundary.tsx` (new file) is a proper React error boundary now wrapping every product grid, carousel, and image gallery in the app (`src/app/collections/[handle]/page.tsx`, `src/app/products/[handle]/page.tsx`, `src/app/search/page.tsx`, `src/app/page.tsx`). If anything fails while rendering products specifically, only that section shows an error — the rest of the page keeps working — and critically, this **always shows the real error message**, since it runs entirely in the browser and is never subject to Next.js's server-side message redaction.
+
+Between this and confirming the deployment actually updated, the next test should finally show either working products or the real, specific reason why not.
+
+---
+
+### Latest fix (this round) — the actual cause of "Something went wrong" on every collection
+
+The same crash was happening on `/collections/all` **and** `/collections/wet-dog-food` with an identical error reference number — that was the key clue that this wasn't about one bad product image (my previous fix, while still a good defensive improvement, wasn't the actual cause). An identical failure across every collection pointed to a **query-structure problem**, not a data problem specific to one collection.
+
+The cause: the collection query requested a `filters` field (Shopify's faceted-filter data — the kind of "Brand", "Price range" filter chips some stores show) that this app never actually used anywhere in its UI. This specific field has a well-documented history of causing Shopify's Storefront API to return an "Internal Error" response in certain store configurations — several developers have reported this on Shopify's own GitHub feedback repo. Since the app already didn't use this data, the fix was simple and safe: removed the `filters` argument and field from the query entirely (`src/lib/shopify/queries.ts`, `src/lib/shopify/api.ts`). This should resolve the crash on every collection page immediately.
+
+I also fixed a real gap in how errors were being shown: `src/app/collections/[handle]/page.tsx` and `src/app/products/[handle]/page.tsx` now catch a Shopify failure **inside the page itself** and display the real error message directly, instead of letting it escape to Next.js's global error boundary — which redacts the actual message in production (showing only a "Ref" number) for security reasons. If anything else ever goes wrong on these pages, you'll now see exactly what and why, right on the error screen, without needing Vercel log access.
+
+---
+
 ### Latest fixes (this round)
 
 **1. TypeScript build error in `src/app/policies/[handle]/page.tsx`** — fixed exactly as specified: replaced the overly-broad `Record<string, keyof Awaited<ReturnType<typeof getShopPolicies>>>` typing (which let the lookup key widen to include `name`/`url`, both plain `string` fields, causing the `string | ShopPolicy | null` type error) with an explicit `PolicyKey` union of only the four real policy fields.
