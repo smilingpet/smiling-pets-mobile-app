@@ -5,9 +5,9 @@ import { useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { AlertIcon } from "@/components/icons/Icons";
 
-type Reason = "not-configured" | "error" | "empty";
+type Reason = "not-configured" | "error" | "empty" | "detail";
 
-const COPY: Record<Reason, { title: string; description: string; checklist: string[] }> = {
+const COPY: Record<Exclude<Reason, "detail">, { title: string; description: string; checklist: string[] }> = {
   "not-configured": {
     title: "Shopify isn't connected yet",
     description:
@@ -39,9 +39,52 @@ const COPY: Record<Reason, { title: string; description: string; checklist: stri
   },
 };
 
-export function ShopifyTroubleshoot({ reason }: { reason: Reason }) {
+export function ShopifyTroubleshoot({
+  reason,
+  detail,
+}: {
+  reason: Reason;
+  /** The actual error message, when reason is "detail". Only ever pass a
+   * message caught INSIDE a Server Component (not one that escaped to
+   * Next's global error boundary) — those get redacted by Next.js in
+   * production before they'd ever reach here. */
+  detail?: string;
+}) {
   const router = useRouter();
   const [retrying, setRetrying] = useState(false);
+
+  function handleRetry() {
+    setRetrying(true);
+    router.refresh();
+    window.setTimeout(() => setRetrying(false), 1200);
+  }
+
+  if (reason === "detail") {
+    return (
+      <div className="flex flex-col items-center px-6 py-12 text-center">
+        <Logo height={40} className="mb-6 opacity-90" />
+        <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent-50">
+          <AlertIcon className="h-7 w-7 text-accent-600" />
+        </div>
+        <h1 className="mb-2 text-base font-bold text-ink">Couldn't load this page</h1>
+        <p className="mb-2 max-w-sm text-sm text-ink-light">
+          Here's exactly what went wrong, so it can be fixed directly instead of guessed at:
+        </p>
+        <p className="mb-6 w-full max-w-sm break-words rounded-xl border border-surface-border bg-surface-muted px-3 py-2.5 text-left text-xs leading-relaxed text-ink">
+          {detail || "No further detail was provided."}
+        </p>
+        <button
+          type="button"
+          onClick={handleRetry}
+          disabled={retrying}
+          className="rounded-full bg-accent-500 px-6 py-2.5 text-sm font-semibold text-white shadow-card active:scale-95 disabled:opacity-60"
+        >
+          {retrying ? "Retrying…" : "Retry"}
+        </button>
+      </div>
+    );
+  }
+
   const copy = COPY[reason];
 
   function handleRetry() {

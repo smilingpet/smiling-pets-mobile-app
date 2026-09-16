@@ -2,8 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import { getCollectionByHandle } from "@/lib/shopify/api";
+import { ShopifyApiError } from "@/lib/shopify/client";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { SortDropdown, parseSortParam } from "@/components/product/SortDropdown";
+import { ShopifyTroubleshoot } from "@/components/ui/ShopifyTroubleshoot";
+import { RenderErrorBoundary } from "@/components/ui/RenderErrorBoundary";
 import { CATEGORY_NAV, SITE_URL } from "@/lib/constants";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
 import { isSafeImageUrl } from "@/lib/utils/image";
@@ -17,7 +20,7 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const collection = await getCollectionByHandle(params.handle, { first: 1 });
+  const collection = await getCollectionByHandle(params.handle, { first: 1 }).catch(() => null);
   if (!collection) return {};
   const description = collection.description
     ? truncate(stripHtml(collection.description), 155)
@@ -44,11 +47,32 @@ export default async function CollectionPage({ params, searchParams }: Props) {
   const { sortKey, reverse } = parseSortParam(searchParams.sort);
   const shopifySortKey = sortKey === "RELEVANCE" ? "COLLECTION_DEFAULT" : sortKey;
 
-  const collection = await getCollectionByHandle(params.handle, {
-    first: 12,
-    sortKey: shopifySortKey as never,
-    reverse,
-  });
+  let collection: Awaited<ReturnType<typeof getCollectionByHandle>>;
+  try {
+    collection = await getCollectionByHandle(params.handle, {
+      first: 12,
+      sortKey: shopifySortKey as never,
+      reverse,
+    });
+  } catch (error) {
+    // Caught here (rather than left to bubble to the global error.tsx)
+    // specifically so the real message can be shown below — Next.js
+    // redacts error messages in production ONLY for errors that escape a
+    // Server Component's render into its own error boundary, not for
+    // ones a component catches and displays itself.
+    console.error(`[CollectionPage:${params.handle}]`, error);
+    const message =
+      error instanceof ShopifyApiError
+        ? error.message
+        : error instanceof Error
+          ? error.message
+          : "Unknown error.";
+    return (
+      <div className="px-4 py-6">
+        <ShopifyTroubleshoot reason="detail" detail={message} />
+      </div>
+    );
+  }
 
   if (!collection) notFound();
 
@@ -109,14 +133,16 @@ export default async function CollectionPage({ params, searchParams }: Props) {
       </div>
 
       <div className="mt-3 px-4">
-        <ProductGrid
-          key={searchParams.sort || "featured"}
-          initialItems={collection.products.items}
-          initialPageInfo={collection.products.pageInfo}
-          collectionHandle={params.handle}
-          emptyTitle="No products in this collection yet"
-          emptyDescription="Check back soon, or browse another category."
-        />
+        <RenderErrorBoundary label="Product list">
+          <ProductGrid
+            key={searchParams.sort || "featured"}
+            initialItems={collection.products.items}
+            initialPageInfo={collection.products.pageInfo}
+            collectionHandle={params.handle}
+            emptyTitle="No products in this collection yet"
+            emptyDescription="Check back soon, or browse another category."
+          />
+        </RenderErrorBoundary>
       </div>
     </div>
   );

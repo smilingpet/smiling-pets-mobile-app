@@ -2,10 +2,13 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { getProductByHandle, getRelatedProducts } from "@/lib/shopify/api";
+import { ShopifyApiError } from "@/lib/shopify/client";
 import { ImageGallery } from "@/components/product/ImageGallery";
 import { ProductPurchasePanel } from "@/components/product/ProductPurchasePanel";
 import { InfoAccordion } from "@/components/product/InfoAccordion";
 import { ProductCarousel } from "@/components/home/ProductCarousel";
+import { ShopifyTroubleshoot } from "@/components/ui/ShopifyTroubleshoot";
+import { RenderErrorBoundary } from "@/components/ui/RenderErrorBoundary";
 import { WhatsAppButton } from "@/components/layout/WhatsAppButton";
 import { SITE_URL } from "@/lib/constants";
 import { productJsonLd, breadcrumbJsonLd } from "@/lib/seo/jsonld";
@@ -17,7 +20,7 @@ export const revalidate = 60;
 type Props = { params: { handle: string } };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const product = await getProductByHandle(params.handle);
+  const product = await getProductByHandle(params.handle).catch(() => null);
   if (!product) return {};
   const description = truncate(stripHtml(product.description || product.title), 155);
   return {
@@ -34,7 +37,27 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function ProductPage({ params }: Props) {
-  const product = await getProductByHandle(params.handle);
+  let product: Awaited<ReturnType<typeof getProductByHandle>>;
+  try {
+    product = await getProductByHandle(params.handle);
+  } catch (error) {
+    // Caught here (not left to bubble to the global error.tsx) so the
+    // real message can be shown — see the matching comment in
+    // src/app/collections/[handle]/page.tsx for why this matters.
+    console.error(`[ProductPage:${params.handle}]`, error);
+    const message =
+      error instanceof ShopifyApiError
+        ? error.message
+        : error instanceof Error
+          ? error.message
+          : "Unknown error.";
+    return (
+      <div className="px-4 py-6">
+        <ShopifyTroubleshoot reason="detail" detail={message} />
+      </div>
+    );
+  }
+
   if (!product) notFound();
 
   const related = await getRelatedProducts(product.id, 8).catch(() => []);
@@ -59,10 +82,14 @@ export default async function ProductPage({ params }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
 
-      <ImageGallery images={product.images} title={product.title} />
+      <RenderErrorBoundary label="Product images">
+        <ImageGallery images={product.images} title={product.title} />
+      </RenderErrorBoundary>
 
       <div className="px-4 pt-2">
-        <ProductPurchasePanel product={product} />
+        <RenderErrorBoundary label="Purchase options">
+          <ProductPurchasePanel product={product} />
+        </RenderErrorBoundary>
 
         {product.description && (
           <div className="mt-6">
@@ -110,7 +137,9 @@ export default async function ProductPage({ params }: Props) {
         </div>
       </div>
 
-      <ProductCarousel title="You may also like" icon={PawIcon} products={related} />
+      <RenderErrorBoundary label="Related products">
+        <ProductCarousel title="You may also like" icon={PawIcon} products={related} />
+      </RenderErrorBoundary>
 
       <div className="mt-6 px-4">
         <WhatsAppSupportInline productTitle={product.title} />

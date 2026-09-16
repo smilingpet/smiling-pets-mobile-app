@@ -131,7 +131,6 @@ export const getCollectionByHandleQuery = /* GraphQL */ `
     $after: String
     $sortKey: ProductCollectionSortKeys
     $reverse: Boolean
-    $filters: [ProductFilter!]
   ) {
     collection(handle: $handle) {
       id
@@ -150,18 +149,7 @@ export const getCollectionByHandleQuery = /* GraphQL */ `
         after: $after
         sortKey: $sortKey
         reverse: $reverse
-        filters: $filters
       ) {
-        filters {
-          id
-          label
-          values {
-            id
-            label
-            count
-            input
-          }
-        }
         edges {
           cursor
           node {

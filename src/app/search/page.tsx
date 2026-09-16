@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { searchProducts } from "@/lib/shopify/api";
+import { ShopifyApiError } from "@/lib/shopify/client";
 import { SearchInput } from "@/components/product/SearchInput";
 import { ProductGrid } from "@/components/product/ProductGrid";
 import { EmptyState } from "@/components/ui/EmptyState";
+import { ShopifyTroubleshoot } from "@/components/ui/ShopifyTroubleshoot";
+import { RenderErrorBoundary } from "@/components/ui/RenderErrorBoundary";
 import { SearchOffIcon } from "@/components/icons/Icons";
 import { CATEGORY_NAV } from "@/lib/constants";
 
@@ -26,7 +29,23 @@ const POPULAR_SEARCHES = [
 
 export default async function SearchPage({ searchParams }: Props) {
   const query = searchParams.q?.trim() || "";
-  const result = query ? await searchProducts(query, { first: 12 }) : null;
+
+  let result: Awaited<ReturnType<typeof searchProducts>> | null = null;
+  let errorMessage: string | null = null;
+
+  if (query) {
+    try {
+      result = await searchProducts(query, { first: 12 });
+    } catch (error) {
+      console.error(`[SearchPage:${query}]`, error);
+      errorMessage =
+        error instanceof ShopifyApiError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : "Unknown error.";
+    }
+  }
 
   return (
     <div className="px-4 pb-6 pt-4">
@@ -62,7 +81,13 @@ export default async function SearchPage({ searchParams }: Props) {
         </div>
       )}
 
-      {query && (
+      {query && errorMessage && (
+        <div className="mt-6">
+          <ShopifyTroubleshoot reason="detail" detail={errorMessage} />
+        </div>
+      )}
+
+      {query && !errorMessage && (
         <div className="mt-5">
           <p className="mb-3 text-xs text-ink-light">
             {result && result.items.length > 0
@@ -70,12 +95,14 @@ export default async function SearchPage({ searchParams }: Props) {
               : `No results for "${query}"`}
           </p>
           {result && result.items.length > 0 ? (
-            <ProductGrid
-              key={query}
-              initialItems={result.items}
-              initialPageInfo={result.pageInfo}
-              searchQuery={query}
-            />
+            <RenderErrorBoundary label="Search results">
+              <ProductGrid
+                key={query}
+                initialItems={result.items}
+                initialPageInfo={result.pageInfo}
+                searchQuery={query}
+              />
+            </RenderErrorBoundary>
           ) : (
             <EmptyState
               icon={SearchOffIcon}

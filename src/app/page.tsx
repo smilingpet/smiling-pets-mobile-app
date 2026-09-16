@@ -11,6 +11,7 @@ import { Footer } from "@/components/layout/Footer";
 import { getCollections, getProducts } from "@/lib/shopify/api";
 import { isShopifyConfigured, ShopifyApiError } from "@/lib/shopify/client";
 import { ShopifyTroubleshoot } from "@/components/ui/ShopifyTroubleshoot";
+import { RenderErrorBoundary } from "@/components/ui/RenderErrorBoundary";
 import { DogIcon, TrophyIcon } from "@/components/icons/Icons";
 import { SITE_DESCRIPTION, SITE_NAME } from "@/lib/constants";
 
@@ -79,21 +80,25 @@ export default async function HomePage() {
 
       <ShopByPet />
 
-      <ProductCarousel
-        title="Hand Picked Exclusive Pet Products"
-        icon={DogIcon}
-        products={exclusiveProducts.items}
-        viewAllHref="/collections/all"
-      />
+      <RenderErrorBoundary label="Hand Picked Exclusive Pet Products">
+        <ProductCarousel
+          title="Hand Picked Exclusive Pet Products"
+          icon={DogIcon}
+          products={exclusiveProducts.items}
+          viewAllHref="/collections/all"
+        />
+      </RenderErrorBoundary>
 
       <CategoryGrid collections={allCollections} />
 
-      <ProductCarousel
-        title="Best Sellers"
-        icon={TrophyIcon}
-        products={bestSellers.items}
-        viewAllHref="/collections/all?sort=best_selling-asc"
-      />
+      <RenderErrorBoundary label="Best Sellers">
+        <ProductCarousel
+          title="Best Sellers"
+          icon={TrophyIcon}
+          products={bestSellers.items}
+          viewAllHref="/collections/all?sort=best_selling-asc"
+        />
+      </RenderErrorBoundary>
 
       <MixMatchRow />
 

@@ -160,7 +160,6 @@ export async function getCollectionByHandle(
     after?: string | null;
     sortKey?: "BEST_SELLING" | "CREATED" | "PRICE" | "TITLE" | "COLLECTION_DEFAULT" | "MANUAL";
     reverse?: boolean;
-    filters?: Record<string, unknown>[];
     buyerIp?: string;
   } = {}
 ): Promise<CollectionWithProducts | null> {
@@ -179,7 +178,6 @@ export async function getCollectionByHandle(
       after: options.after ?? null,
       sortKey: options.sortKey ?? "COLLECTION_DEFAULT",
       reverse: options.reverse ?? false,
-      filters: options.filters ?? [],
     },
     tags: [`collection-${handle}`, "collections"],
     revalidate: 60,
