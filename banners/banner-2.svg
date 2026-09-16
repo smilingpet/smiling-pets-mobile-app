@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" role="img" aria-label="">
+  <defs>
+    <linearGradient id="bg2" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4fbd69"/>
+      <stop offset="55%" stop-color="#3fa24f"/>
+      <stop offset="100%" stop-color="#23552c"/>
+    </linearGradient>
+    <radialGradient id="glow2" cx="82%" cy="18%" r="60%">
+      <stop offset="0%" stop-color="#ffffff" stop-opacity="0.20"/>
+      <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="400" height="300" fill="url(#bg2)"/>
+  <rect width="400" height="300" fill="url(#glow2)"/>
+  <circle cx="345" cy="65" r="115" fill="#ffffff" opacity="0.08"/>
+  <circle cx="370" cy="235" r="85" fill="#ffffff" opacity="0.09"/>
+  <circle cx="295" cy="250" r="42" fill="#ffffff" opacity="0.11"/>
+  <!-- price-tag motif, decorative only -->
+  <g opacity="0.18" fill="none" stroke="#ffffff" stroke-width="4">
+    <path d="M330 90 L370 90 L392 112 L350 154 L308 112 Z" />
+    <circle cx="352" cy="106" r="5" fill="#ffffff" stroke="none"/>
+  </g>
+  <g opacity="0.14" fill="#ffffff">
+    <ellipse cx="360" cy="215" rx="16" ry="12"/>
+    <circle cx="342" cy="193" r="5.5"/>
+    <circle cx="355" cy="182" r="5.5"/>
+    <circle cx="370" cy="182" r="5.5"/>
+    <circle cx="382" cy="193" r="5.5"/>
+  </g>
+</svg>
