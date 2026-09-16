@@ -45,6 +45,18 @@ smiling-pets-pwa/
 
 ## What changed in this update — files to replace on GitHub
 
+### Latest fixes (this round)
+
+**1. TypeScript build error in `src/app/policies/[handle]/page.tsx`** — fixed exactly as specified: replaced the overly-broad `Record<string, keyof Awaited<ReturnType<typeof getShopPolicies>>>` typing (which let the lookup key widen to include `name`/`url`, both plain `string` fields, causing the `string | ShopPolicy | null` type error) with an explicit `PolicyKey` union of only the four real policy fields.
+
+**2. Category pages crashing with "Something went wrong" while brand pages worked** — this was a real bug, and I found and fixed the actual cause. Clicking a brand collection (e.g. Royal Canin) worked, but clicking a category collection (e.g. Wet Dog Food) threw an error. The reason: `next/image` throws a hard runtime error — crashing the whole page — if it's ever given an image URL whose hostname isn't on the allow-list in `next.config.mjs`. That allow-list only covers `cdn.shopify.com` and `*.myshopify.com`. Your category collections' *product* images loaded fine at the collection-listing level, but something about the specific products inside collections like Wet Dog Food (most likely one product with an externally-hosted image — common when a product was added via a bulk import or an app rather than uploaded directly in Shopify) had a URL outside that allow-list, and crashed the entire page the moment it tried to render.
+
+The fix, `src/lib/utils/image.ts`, is a small guard now used everywhere an image URL from Shopify gets rendered (product cards, cart line items, the product photo gallery, collection and category images, brand images): it checks the URL's hostname first, and if it's not on the safe list, shows a neutral icon placeholder instead of handing it to `next/image` — so a single unusual image can never take down an entire page again. Files touched: `src/lib/utils/image.ts` (new), `src/components/product/ProductCard.tsx`, `src/components/product/ImageGallery.tsx`, `src/components/home/CategoryGrid.tsx`, `src/components/home/BrandsRow.tsx`, `src/components/cart/CartLineItem.tsx`, `src/app/categories/page.tsx`, `src/app/collections/[handle]/page.tsx`.
+
+I also made `src/app/error.tsx` show the actual error message (and Next's error "digest" reference) on screen instead of just a generic "Something went wrong" — so if anything else like this ever slips through, you (or I) can see exactly what broke without needing access to your Vercel function logs.
+
+---
+
 If you already pushed an earlier version of this project, the cleanest way to apply this update is to **replace these files/folders wholesale** in your GitHub repo with the versions in this ZIP (delete the old ones first if GitHub doesn't overwrite cleanly), then let Vercel redeploy:
 
 **Shopify connection & data (the products-not-loading fix)**

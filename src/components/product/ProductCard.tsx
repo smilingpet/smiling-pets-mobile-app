@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Price } from "@/components/ui/Price";
 import { AddToCartButton } from "@/components/product/AddToCartButton";
 import { ImageOffIcon } from "@/components/icons/Icons";
+import { isSafeImageUrl } from "@/lib/utils/image";
 import type { ProductCardData } from "@/lib/shopify/types";
 
 export function ProductCard({
@@ -13,6 +14,7 @@ export function ProductCard({
   priority?: boolean;
 }) {
   const image = product.featuredImage;
+  const showImage = isSafeImageUrl(image?.url);
   const firstVariantAvailable = product.availableForSale;
 
   return (
@@ -21,10 +23,10 @@ export function ProductCard({
       className="group flex flex-col overflow-hidden rounded-2xl border border-surface-border bg-white shadow-card transition active:scale-[0.98]"
     >
       <div className="relative aspect-square w-full overflow-hidden bg-surface-muted">
-        {image ? (
+        {showImage ? (
           <Image
-            src={image.url}
-            alt={image.altText || product.title}
+            src={image!.url}
+            alt={image!.altText || product.title}
             fill
             sizes="(max-width: 640px) 50vw, 200px"
             className="object-contain p-3 transition-transform group-hover:scale-105"

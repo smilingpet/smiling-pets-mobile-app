@@ -6,6 +6,7 @@ import { ProductGrid } from "@/components/product/ProductGrid";
 import { SortDropdown, parseSortParam } from "@/components/product/SortDropdown";
 import { CATEGORY_NAV, SITE_URL } from "@/lib/constants";
 import { breadcrumbJsonLd } from "@/lib/seo/jsonld";
+import { isSafeImageUrl } from "@/lib/utils/image";
 import { stripHtml, truncate } from "@/lib/utils/format";
 
 export const revalidate = 60;
@@ -66,11 +67,11 @@ export default async function CollectionPage({ params, searchParams }: Props) {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbs) }}
       />
 
-      {collection.image && (
+      {isSafeImageUrl(collection.image?.url) && (
         <div className="relative aspect-[21/9] w-full overflow-hidden bg-brand-50">
           <Image
-            src={collection.image.url}
-            alt={collection.image.altText || collection.title}
+            src={collection.image!.url}
+            alt={collection.image!.altText || collection.title}
             fill
             className="object-cover"
             sizes="100vw"

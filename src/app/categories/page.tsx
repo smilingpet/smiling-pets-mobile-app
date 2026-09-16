@@ -4,6 +4,7 @@ import Link from "next/link";
 import { getCollections } from "@/lib/shopify/api";
 import { CATEGORY_NAV } from "@/lib/constants";
 import { PawIcon, ChevronRightIcon } from "@/components/icons/Icons";
+import { isSafeImageUrl } from "@/lib/utils/image";
 
 export const metadata: Metadata = {
   title: "Categories",
@@ -25,6 +26,7 @@ export default async function CategoriesPage() {
       <div className="space-y-4">
         {CATEGORY_NAV.map((category) => {
           const collection = byHandle.get(category.handle);
+          const showImage = isSafeImageUrl(collection?.image?.url);
           return (
             <div key={category.handle}>
               <Link
@@ -32,10 +34,10 @@ export default async function CategoriesPage() {
                 className="flex items-center gap-3 rounded-2xl border border-surface-border bg-white p-3.5 shadow-card transition active:scale-[0.98]"
               >
                 <span className="relative flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-50 to-brand-100">
-                  {collection?.image ? (
+                  {showImage ? (
                     <Image
-                      src={collection.image.url}
-                      alt={collection.image.altText || category.title}
+                      src={collection!.image!.url}
+                      alt={collection!.image!.altText || category.title}
                       fill
                       sizes="48px"
                       className="object-cover"

@@ -19,7 +19,7 @@ import "server-only";
 
 // Storefront API version. Bump this in one place when Shopify releases a
 // new stable version — see https://shopify.dev/docs/api/usage/versioning
-const API_VERSION = "2026-04";
+const API_VERSION = "2026-07";
 
 const domain = process.env.NEXT_PUBLIC_SHOPIFY_STORE_DOMAIN;
 const token = process.env.SHOPIFY_STOREFRONT_PRIVATE_TOKEN;

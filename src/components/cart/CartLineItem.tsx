@@ -7,11 +7,13 @@ import { useCart } from "@/lib/cart/cart-context";
 import { QuantitySelector } from "@/components/product/QuantitySelector";
 import { Price } from "@/components/ui/Price";
 import { ImageOffIcon, TrashIcon } from "@/components/icons/Icons";
+import { isSafeImageUrl } from "@/lib/utils/image";
 import type { CartLine } from "@/lib/shopify/types";
 
 export function CartLineItem({ line }: { line: CartLine }) {
   const { updateItemQuantity, removeItem } = useCart();
   const [isBusy, setIsBusy] = useState(false);
+  const showImage = isSafeImageUrl(line.merchandise.image?.url);
 
   const variantOptions = line.merchandise.selectedOptions.filter(
     (opt) => !(opt.name === "Title" && opt.value === "Default Title")
@@ -29,10 +31,10 @@ export function CartLineItem({ line }: { line: CartLine }) {
         href={`/products/${line.merchandise.product.handle}`}
         className="relative h-20 w-20 shrink-0 overflow-hidden rounded-xl bg-surface-muted"
       >
-        {line.merchandise.image ? (
+        {showImage ? (
           <Image
-            src={line.merchandise.image.url}
-            alt={line.merchandise.image.altText || line.merchandise.product.title}
+            src={line.merchandise.image!.url}
+            alt={line.merchandise.image!.altText || line.merchandise.product.title}
             fill
             sizes="80px"
             className="object-contain p-1.5"

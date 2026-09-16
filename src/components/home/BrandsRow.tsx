@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { TOP_BRANDS } from "@/lib/constants";
+import { isSafeImageUrl } from "@/lib/utils/image";
 import type { Collection } from "@/lib/shopify/types";
 
 const FALLBACK_TINTS = [
@@ -25,6 +26,7 @@ export function BrandsRow({ collections }: { collections: Collection[] }) {
         {TOP_BRANDS.map((brand, index) => {
           const collection = byHandle.get(brand.handle);
           const tint = FALLBACK_TINTS[index % FALLBACK_TINTS.length];
+          const showImage = isSafeImageUrl(collection?.image?.url);
           return (
             <Link
               key={brand.handle}
@@ -32,10 +34,10 @@ export function BrandsRow({ collections }: { collections: Collection[] }) {
               className="flex w-24 shrink-0 flex-col items-center gap-2 rounded-2xl border border-surface-border bg-white p-3 shadow-card transition active:scale-95"
             >
               <span className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-surface-muted">
-                {collection?.image ? (
+                {showImage ? (
                   <Image
-                    src={collection.image.url}
-                    alt={collection.image.altText || brand.name}
+                    src={collection!.image!.url}
+                    alt={collection!.image!.altText || brand.name}
                     fill
                     sizes="56px"
                     className="object-cover"

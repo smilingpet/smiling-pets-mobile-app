@@ -3,11 +3,15 @@
 import Image from "next/image";
 import { useState } from "react";
 import { ImageOffIcon } from "@/components/icons/Icons";
+import { isSafeImageUrl } from "@/lib/utils/image";
 import type { ShopifyImage } from "@/lib/shopify/types";
 
 export function ImageGallery({ images, title }: { images: ShopifyImage[]; title: string }) {
   const [activeIndex, setActiveIndex] = useState(0);
-  const gallery = images.length > 0 ? images : [];
+  // Filter out any image whose host next/image isn't configured to trust —
+  // a single bad URL (e.g. from an externally-imported product) should
+  // never be able to crash the whole product page.
+  const gallery = images.filter((img) => isSafeImageUrl(img.url));
 
   if (gallery.length === 0) {
     return (
