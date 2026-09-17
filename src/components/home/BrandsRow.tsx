@@ -30,7 +30,7 @@ export function BrandsRow({ collections }: { collections: Collection[] }) {
           return (
             <Link
               key={brand.handle}
-              href={`/collections/${brand.handle}`}
+              href={`/search?q=${encodeURIComponent(brand.name)}`}
               className="flex w-24 shrink-0 flex-col items-center gap-2 rounded-2xl border border-surface-border bg-white p-3 shadow-card transition active:scale-95"
             >
               <span className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded-full bg-surface-muted">
