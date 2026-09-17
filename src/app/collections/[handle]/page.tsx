@@ -4,7 +4,7 @@ import Image from "next/image";
 import { getCollectionByHandle } from "@/lib/shopify/api";
 import { ShopifyApiError } from "@/lib/shopify/client";
 import { ProductGrid } from "@/components/product/ProductGrid";
-import { SortDropdown, parseSortParam } from "@/components/product/SortDropdown";
+import { SortDropdown } from "@/components/product/SortDropdown";
 import { ShopifyTroubleshoot } from "@/components/ui/ShopifyTroubleshoot";
 import { RenderErrorBoundary } from "@/components/ui/RenderErrorBoundary";
 import { CATEGORY_NAV, SITE_URL } from "@/lib/constants";
@@ -43,14 +43,23 @@ function findChildren(handle: string) {
 }
 
 export default async function CollectionPage({ params, searchParams }: Props) {
-  const { sortKey, reverse } = parseSortParam(searchParams.sort);
-  const shopifySortKey = sortKey === "RELEVANCE" ? "COLLECTION_DEFAULT" : sortKey;
 
+  const sortOptions: Record<string, { sortKey: string; reverse: boolean }> = {
+  featured: { sortKey: "COLLECTION_DEFAULT", reverse: false },
+  "price-low-high": { sortKey: "PRICE", reverse: false },
+  "price-high-low": { sortKey: "PRICE", reverse: true },
+  newest: { sortKey: "CREATED", reverse: true },
+  "best-selling": { sortKey: "BEST_SELLING", reverse: false },
+  title: { sortKey: "TITLE", reverse: false },
+};
+
+const { sortKey, reverse } =
+  sortOptions[searchParams.sort || "featured"] || sortOptions.featured;
   let collection: Awaited<ReturnType<typeof getCollectionByHandle>>;
   try {
     collection = await getCollectionByHandle(params.handle, {
       first: 12,
-      sortKey: shopifySortKey as never,
+sortKey: sortKey as never,
       reverse,
     });
   } catch (error) {
