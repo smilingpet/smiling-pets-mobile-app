@@ -96,7 +96,7 @@ export default async function HomePage() {
           title="Best Sellers"
           icon={TrophyIcon}
           products={bestSellers.items}
-          viewAllHref="/search"?sort=best_selling-asc"
+          viewAllHref="/collections/all?sort=best_selling-asc"
         />
       </RenderErrorBoundary>
 
