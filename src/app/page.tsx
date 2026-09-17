@@ -85,7 +85,7 @@ export default async function HomePage() {
           title="Hand Picked Exclusive Pet Products"
           icon={DogIcon}
           products={exclusiveProducts.items}
-          viewAllHref="/collections/all"
+          viewAllhref="/search"
         />
       </RenderErrorBoundary>
 
