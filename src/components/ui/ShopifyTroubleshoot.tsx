@@ -86,14 +86,7 @@ export function ShopifyTroubleshoot({
   }
 
   const copy = COPY[reason];
-
-  function handleRetry() {
-    setRetrying(true);
-    router.refresh();
-    window.setTimeout(() => setRetrying(false), 1200);
-  }
-
-  return (
+  
     <div className="flex flex-col items-center px-6 py-12 text-center">
       <Logo height={40} className="mb-6 opacity-90" />
       <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-accent-50">
