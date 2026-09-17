@@ -60,7 +60,7 @@ export const HERO_BANNERS = [
     headline: "Everything Your Pet Needs",
     subheading: "Premium food, treats & essentials — delivered fast",
     ctaLabel: "Shop All Products",
-    href: "/collections/all",
+    href: "/search",
   },
   {
     id: "banner-offers",
