@@ -69,7 +69,7 @@ export default async function CategoriesPage() {
 
       <div className="mt-6">
         <Link
-          href="/collections/all"
+          href="/search"
           className="block rounded-2xl bg-ink py-3.5 text-center text-sm font-bold text-white active:scale-95"
         >
           View All Products
