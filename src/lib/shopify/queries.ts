@@ -165,7 +165,6 @@ export const getCollectionByHandleQuery = /* GraphQL */ `
       }
     }
   }
-  ${imageFragment}
   ${seoFragment}
   ${productCardFragment}
 `;
