@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Logo } from "@/components/brand/Logo";
 import { AlertIcon } from "@/components/icons/Icons";
 
-type Reason = "not-configured" | "error" | "empty";
+type Reason = "not-configured" | "error" | "empty" | "detail";
 
 const COPY: Record<
   Reason,
@@ -40,10 +40,21 @@ const COPY: Record<
       "Confirm that the configured domain belongs to the correct Shopify store",
     ],
   },
+
+ detail: {
+    title: "Something went wrong",
+    description: "We hit a snag while loading this page.",
+    checklist: [],
+  },
 };
 
-export function ShopifyTroubleshoot({ reason }: { reason: Reason }) {
-  const router = useRouter();
+export function ShopifyTroubleshoot({
+  reason,
+  detail,
+}: {
+  reason: Reason;
+  detail?: string;
+}) {  const router = useRouter();
   const [retrying, setRetrying] = useState(false);
   const copy = COPY[reason];
 
@@ -66,7 +77,8 @@ export function ShopifyTroubleshoot({ reason }: { reason: Reason }) {
       </h1>
 
       <p className="mb-4 max-w-sm text-sm text-ink-light">
-        {copy.description}
+{detail || copy.description}
+      
       </p>
 
       <ul className="mb-6 w-full max-w-sm space-y-2 text-left">
