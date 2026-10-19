@@ -6,6 +6,16 @@ No local software is required to deploy this. You will push the code to GitHub f
 
 ---
 
+## Update: Dark-mode phones fix
+
+The app is now light-only (`only light` colour-scheme in `layout.tsx` and `globals.css`), so phones in dark mode no longer show a black screen or an invisible logo.
+
+Files to replace on GitHub:
+- `src/app/layout.tsx`
+- `src/app/globals.css`
+- `src/components/layout/Header.tsx`
+- `README.md`
+
 ## Update: Mix & Match fix
 
 Mix & Match items are Shopify PRODUCTS (collection handle `mix-match`), not pages. The home section now loads that collection live and opens `/products/[handle]`. PRAMA's real handle is `prama-delicacy-mix-match-120g`.
