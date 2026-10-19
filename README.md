@@ -6,6 +6,15 @@ No local software is required to deploy this. You will push the code to GitHub f
 
 ---
 
+## Update: Mix & Match fix
+
+Mix & Match items are Shopify PRODUCTS (collection handle `mix-match`), not pages. The home section now loads that collection live and opens `/products/[handle]`. PRAMA's real handle is `prama-delicacy-mix-match-120g`.
+
+Files to replace on GitHub:
+- `src/components/home/MixMatchRow.tsx`
+- `src/lib/constants.ts`
+- `README.md`
+
 ## 1. What's inside
 
 ```
